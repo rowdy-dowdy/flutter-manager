@@ -55,12 +55,14 @@ class MyApp extends ConsumerWidget {
         ),
         inputDecorationTheme: const InputDecorationTheme(
           labelStyle: TextStyle(color: primary),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(
-              style: BorderStyle.solid, 
-              color: primary
-          ),
-          )
+          // focusedBorder: UnderlineInputBorder(
+          //   borderSide: BorderSide(
+          //     style: BorderStyle.solid, 
+          //     color: primary
+          //   ),
+          // )
+          isDense: true,
+          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10.0),
         ),
         tabBarTheme: const TabBarTheme(
           labelColor: primary,
