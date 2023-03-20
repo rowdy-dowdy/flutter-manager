@@ -43,18 +43,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
-    final heightSafeArea = MediaQuery.of(context).size.height -
-      AppBar().preferredSize.height -
-      MediaQuery.of(context).padding.top -
-      MediaQuery.of(context).padding.bottom;
+    print(size);
     
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            height: heightSafeArea,
-            padding: const EdgeInsets.symmetric(horizontal: 20,),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20,),
+          constraints: BoxConstraints(
+            minHeight: size.height,
+          ),
+          child: IntrinsicHeight(
             child: Column(
               children: [
                 const SizedBox(height: 50,),
@@ -185,5 +183,3 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 }
-
-

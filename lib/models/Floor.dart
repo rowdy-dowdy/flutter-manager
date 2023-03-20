@@ -40,7 +40,7 @@ class FloorModel {
       status: map['status'] as bool,
       created: DateTime.parse(map['created'] as String),
       updated: DateTime.parse(map['updated'] as String),
-      rooms: map['expand']['rooms(floor)'] ? List<RoomModel>.from((map['expand']['rooms(floor)'] as List<dynamic>).map<RoomModel>((x) => RoomModel.fromMap(x as Map<String,dynamic>),),) : [],
+      rooms: map['expand']?['rooms(floor)'] != null ? List<RoomModel>.from((map['expand']['rooms(floor)'] as List<dynamic>).map<RoomModel>((x) => RoomModel.fromMap(x as Map<String,dynamic>),),) : [],
     );
   }
 

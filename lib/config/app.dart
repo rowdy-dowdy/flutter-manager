@@ -1,1 +1,1 @@
-const BASE_URL = "localhost:8090";
+const BASE_URL = "base.viethung.fun";

@@ -30,59 +30,73 @@ class AuthRepository {
   });
 
   Future<UserModel?> userDataById(String id) async {
-    var url = Uri.https(BASE_URL, '/api/collections/users/records/:$id');
-    var response = await http.get(url);
+    try {
+      var url = Uri.https(BASE_URL, '/api/collections/users/records/:$id');
+      var response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      UserModel user = UserModel.fromJson(response.body);
-      return user;
-    } 
-    else {
+      if (response.statusCode == 200) {
+        UserModel user = UserModel.fromJson(response.body);
+        return user;
+      } 
+      else {
+        return null;
+      }
+    } catch (e) {
       return null;
     }
   }
 
   Future<UserData?> getCurrentUserData() async {
-    final prefs = await ref.read(sharedPrefsProvider.future);
-    String? token = await prefs.getString('token');
+    try {
+      final prefs = await ref.read(sharedPrefsProvider.future);
+      String? token = await prefs.getString('token');
+      print(token);
 
-    if (token == null) return null;
+      if (token == null) return null;
 
-    var url = Uri.https(BASE_URL, '/api/collections/users/auth-refresh');
-    var response = await http.post(url, headers: {
-      'authorization': token,
-    });
+      var url = Uri.https(BASE_URL, '/api/collections/users/auth-refresh');
+      var response = await http.post(url, headers: {
+        'authorization': token,
+      });
 
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      UserModel user = UserModel.fromMap(data['record']);
-      String token = data['token'];
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        UserModel user = UserModel.fromMap(data['record']);
+        String token = data['token'];
 
-      return UserData(user: user, token: token);
-    } 
-    else {
+        return UserData(user: user, token: token);
+      } 
+      else {
+        return null;
+      }
+    } catch (e) {
       return null;
     }
   }
 
   Future<UserData?> signInWithPassword(String identity, String password) async {
-    var url = Uri.https(BASE_URL, '/api/collections/users/auth-with-password');
-    var response = await http.post(url, body: {
-      "identity": identity,
-      "password": password
-    });
+    try {
+      var url = Uri.https(BASE_URL, '/api/collections/users/auth-with-password');
+      var response = await http.post(url, body: {
+        "identity": identity,
+        "password": password
+      });
 
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      UserModel user = UserModel.fromMap(data['record']);
-      String token = data['token'];
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        UserModel user = UserModel.fromMap(data['record']);
+        String token = data['token'];
 
-      final prefs = await ref.read(sharedPrefsProvider.future);
-      await prefs.setString('token', data['token']);
+        final prefs = await ref.read(sharedPrefsProvider.future);
+        await prefs.setString('token', data['token']);
 
-      return UserData(user: user, token: token);
-    } 
-    else {
+        return UserData(user: user, token: token);
+      } 
+      else {
+        return null;
+      }
+
+    } catch (e) {
       return null;
     }
   }

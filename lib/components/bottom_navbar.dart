@@ -45,6 +45,7 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>{
   Widget build(BuildContext context) {
     final location = ref.watch(routerProvider).location;
     final currentPageIndex = menu.indexWhere((v) => v['path'] == location);
+    print(currentPageIndex);
 
     return NavigationBar(
       destinations: menu.map((v) => 
@@ -53,7 +54,7 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>{
           label: v['label']
         )
       ).toList(),
-      selectedIndex: currentPageIndex,
+      selectedIndex: currentPageIndex < 0 ? 0 : currentPageIndex,
       onDestinationSelected: (int index) {
         // setState(() {
         //   currentPageIndex = index;
@@ -62,6 +63,7 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>{
       },
       animationDuration: const Duration(seconds: 1),
       height: 70,
+      backgroundColor: Colors.white,
     );
   }
 }

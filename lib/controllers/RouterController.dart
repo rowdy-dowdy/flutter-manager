@@ -8,6 +8,7 @@ import 'package:manager/pages/bills/BillsPage.dart';
 import 'package:manager/pages/home/HomePage.dart';
 import 'package:manager/pages/LoadingPage.dart';
 import 'package:manager/pages/LoginPage.dart';
+import 'package:manager/pages/home/room/RoomDetail.dart';
 
 class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
@@ -60,8 +61,15 @@ class RouterNotifier extends ChangeNotifier {
             state: state, 
             child: const HomePage(),
           ),
+          routes: [
+            GoRoute(
+              name: 'room-detail',
+              path: 'room/:id',
+              builder: (context, state) => RoomDetail(id: state.params['id']!),
+            ),
+          ]
         ),
-         GoRoute(
+        GoRoute(
           name: 'bills',
           path: '/bills',
           // builder: (context, state) => const BillsPage(),

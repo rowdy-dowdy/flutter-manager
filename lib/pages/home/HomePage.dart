@@ -64,8 +64,8 @@ class _HomePageState extends ConsumerState<HomePage> with TickerProviderStateMix
                 controller: tabController,
                 children: const [
                   BodyListAll(),
-                  Center(child: Text("Group")),
-                  Center(child: Text("Group")),
+                  Center(child: Text("Sử dụng")),
+                  Center(child: Text("Còn trống")),
                 ],
               ),
             ),

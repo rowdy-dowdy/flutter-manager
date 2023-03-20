@@ -9,9 +9,11 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:manager/config/app.dart';
+import 'package:manager/controllers/AuthController.dart';
 import 'package:manager/models/Floor.dart';
 import 'package:manager/models/UserModel.dart';
 import 'package:manager/services/shared_prefs_service.dart';
+
 class FloorRepository {
   final Ref ref;
 
@@ -19,17 +21,25 @@ class FloorRepository {
     required this.ref,
   });
 
-  Future<FloorModel?> getListFloor(String id) async {
-    var url = Uri.https(BASE_URL, '/api/collections/floors/records?expand=rooms(floor)');
-    var response = await http.get(url);
+  Future<List<FloorModel>> getListFloor() async {
+    try {
+      var url = Uri.https(BASE_URL, '/api/collections/floors/records', {
+        "expand": "rooms(floor)"
+      });
+      var response = await http.get(url, headers: {
+        'authorization': ref.watch(authControllerProvider).token ?? "",
+      });
 
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      FloorModel floor = FloorModel.fromMap(data['items']);
-      return data;
-    } 
-    else {
-      return null;
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        List<FloorModel> floors = List<FloorModel>.from((data['items'] as List<dynamic>).map<FloorModel>((x) => FloorModel.fromMap(x as Map<String,dynamic>),),);
+        return floors;
+      } 
+      else {
+        throw Exception('BarException');
+      }
+    } catch(e) {
+      throw Exception('BarException'); 
     }
   }
 }
