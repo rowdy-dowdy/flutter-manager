@@ -1,10 +1,16 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:manager/config/app.dart';
+
 class MenuModel {
+  final String collectionId;
   final String id;
   final String title;
   final String category;
+  final String image;
+  final String container;
+  final String status;
   final double price;
   final DateTime created;
   final DateTime updated;
@@ -16,6 +22,10 @@ class MenuModel {
     required this.price,
     required this.created,
     required this.updated,
+    required this.image,
+    required this.collectionId,
+    required this.container,
+    required this.status,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,9 +33,13 @@ class MenuModel {
       'id': id,
       'title': title,
       'category': category,
-      'price': price,
-      'created': created.millisecondsSinceEpoch,
-      'updated': updated.millisecondsSinceEpoch,
+      'image': image,
+      'collectionId': collectionId,
+      'container': container,
+      'status': status,
+      'price': price.toInt(),
+      'created': created.toString(),
+      'updated': updated.toString(),
     };
   }
 
@@ -34,6 +48,10 @@ class MenuModel {
       id: map['id'] as String,
       title: map['title'] as String,
       category: map['category'] as String,
+      image: map['image'] as String,
+      collectionId: map['collectionId'] as String,
+      container: map['container'] as String,
+      status: map['status'] as String,
       price: (map['price'] as int).toDouble(),
       created: DateTime.parse(map['created'] as String),
       updated: DateTime.parse(map['updated'] as String),
@@ -43,4 +61,8 @@ class MenuModel {
   String toJson() => json.encode(toMap());
 
   factory MenuModel.fromJson(String source) => MenuModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  String getImage() {
+    return "https://$BASE_URL/api/files/$collectionId/$id/$image";
+  }
 }

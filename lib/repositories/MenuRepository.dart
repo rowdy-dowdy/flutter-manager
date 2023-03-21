@@ -14,7 +14,7 @@ class MenuCategoryRepository {
     required this.ref,
   });
 
-  Future<List<MenuCategoryModel>> getListFloor() async {
+  Future<List<MenuCategoryModel>> getList() async {
     try {
       var url = Uri.https(BASE_URL, '/api/collections/menu_categories/records', {
         "expand": "menus(category)"
@@ -23,19 +23,15 @@ class MenuCategoryRepository {
         'authorization': ref.watch(authControllerProvider).token ?? "",
       });
 
-      print(response.statusCode);
-
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<MenuCategoryModel> records = List<MenuCategoryModel>.from((data['items'] as List<dynamic>).map<MenuCategoryModel>((x) => MenuCategoryModel.fromMap(x as Map<String,dynamic>),),);
-        print(records);
         return records;
       } 
       else {
         throw "";
       }
     } catch(e) {
-      print(e);
       return []; 
     }
   }

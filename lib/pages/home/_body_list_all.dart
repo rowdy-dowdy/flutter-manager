@@ -107,7 +107,9 @@ class BodyListAll extends ConsumerWidget {
                                   fontSize: 16
                                 ),),
                                 const SizedBox(height: 10,),
-                                Row(
+                                Wrap(
+                                  spacing: 5,
+                                  runSpacing: 5,
                                   children: [
                                     Container(
                                       width: 30,
@@ -116,7 +118,6 @@ class BodyListAll extends ConsumerWidget {
                                       // alignment: Alignment.center,
                                       child: const Icon(CupertinoIcons.money_dollar_circle_fill, size: 18, color: Colors.white,),
                                     ),
-                                    const SizedBox(width: 5,),
                                     Container(
                                       width: 30,
                                       height: 30,
@@ -124,7 +125,6 @@ class BodyListAll extends ConsumerWidget {
                                       // alignment: Alignment.center,
                                       child: const Icon(Icons.fastfood_outlined, size: 18, color: Colors.white,),
                                     ),
-                                    const SizedBox(width: 5,),
                                     Container(
                                       width: 30,
                                       height: 30,
@@ -132,7 +132,6 @@ class BodyListAll extends ConsumerWidget {
                                       // alignment: Alignment.center,
                                       child: const Icon(CupertinoIcons.hare_fill, size: 18, color: Colors.white,),
                                     ),
-                                    const SizedBox(width: 5,),
                                     Container(
                                       width: 30,
                                       height: 30,

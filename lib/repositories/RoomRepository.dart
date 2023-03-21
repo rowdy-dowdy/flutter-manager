@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:manager/config/app.dart';
 import 'package:manager/controllers/AuthController.dart';
 import 'package:manager/models/Floor.dart';
+import 'package:manager/models/RoomItemModel.dart';
 import 'package:manager/models/RoomModel.dart';
 import 'package:manager/models/UserModel.dart';
 import 'package:manager/services/shared_prefs_service.dart';
@@ -24,7 +25,9 @@ class RoomRepository {
 
   Future<RoomModel?> getDetailRoom(String id) async {
     try {
-      var url = Uri.https(BASE_URL, '/api/collections/rooms/records/${id}');
+      var url = Uri.https(BASE_URL, '/api/collections/rooms/records/${id}', {
+        'expand': 'items.menu'
+      });
       var response = await http.get(url, headers: {
         'authorization': ref.watch(authControllerProvider).token ?? "",
       });

@@ -2,10 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:manager/controllers/RouterController.dart';
 import 'package:manager/utils/color.dart';
 
 void main() async {
+  initializeDateFormatting();
   runApp(const ProviderScope(child: MyApp()));
 }
 

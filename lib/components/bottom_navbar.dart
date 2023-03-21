@@ -45,7 +45,6 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>{
   Widget build(BuildContext context) {
     final location = ref.watch(routerProvider).location;
     final currentPageIndex = menu.indexWhere((v) => v['path'] == location);
-    print(currentPageIndex);
 
     return NavigationBar(
       destinations: menu.map((v) => 

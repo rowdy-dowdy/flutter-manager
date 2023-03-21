@@ -32,16 +32,21 @@
     "colId": "history",
     "containerId": "",
     "name": "http://localhost:8090/api/collections/floors/records?expand=rooms(floor)",
-    "url": "https://base.viethung.fun/api/collections/menu_categories/records?expand=menus(category)",
+    "url": "https://base.viethung.fun/api/collections/rooms/records?expand=items.menu",
     "method": "GET",
     "sortNum": 0,
     "created": "2023-03-17T10:12:34.836Z",
-    "modified": "2023-03-20T09:14:39.022Z",
-    "headers": [],
+    "modified": "2023-03-21T07:28:44.931Z",
+    "headers": [
+      {
+        "name": "Authorization",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE2ODA1OTMxOTAsImlkIjoicG81b2h0OTNwaXkxMDd5IiwidHlwZSI6ImF1dGhSZWNvcmQifQ.EH6qsIE9MhY2KrPalob2uV3RGLMc-wRV88rQPsZTytI"
+      }
+    ],
     "params": [
       {
         "name": "expand",
-        "value": "menus(category)",
+        "value": "items.menu",
         "isPath": false
       }
     ],
