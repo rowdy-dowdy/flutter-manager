@@ -30,7 +30,7 @@ final filterProvider = Provider((ref) {
   List<MenuCategoryModel> data = ref.watch(listMenuCategoryProvider).whenData((value) => value).value ?? [];
   final filter = ref.watch(menuCategoryStatusProvider);
   if (filter == "") return data.fold<List<MenuModel>>([],(t, e) => t + e.menus);
-  return data.singleWhere((floor) => floor.id == filter).menus ?? [];
+  return data.singleWhere((floor) => floor.id == filter).menus;
 });
 
 class RoomDetail extends ConsumerWidget {

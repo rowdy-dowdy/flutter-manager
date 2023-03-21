@@ -23,7 +23,7 @@ final filterProvider = Provider((ref) {
   List<FloorModel> floors = ref.watch(listFloorProvider).whenData((value) => value).value ?? [];
   final filter = ref.watch(floorStatusProvider);
   if (filter == "") return floors.fold<List<RoomModel>>([],(t, e) => t + e.rooms);
-  return floors.singleWhere((floor) => floor.id == filter).rooms ?? [];
+  return floors.singleWhere((floor) => floor.id == filter).rooms;
 });
 
 class BodyListAll extends ConsumerWidget {
