@@ -202,7 +202,8 @@ class RoomDetail extends ConsumerWidget {
                                                   value: 'delete',
                                                   child: const Text("Xóa lựa chọn", style: TextStyle(
                                                     color: Colors.red,
-                                                    fontWeight: FontWeight.w600
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 12
                                                   ),),
                                                 ),
                                               ]

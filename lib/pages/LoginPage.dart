@@ -55,14 +55,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: IntrinsicHeight(
             child: Column(
               children: [
-                const SizedBox(height: 50,),
+                // const SizedBox(height: 50,),
                 Expanded(
                   child: Center(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Center(child: Image.asset("assets/img/cat2.png", width: 300)),
+                        Container(
+                          // width: 300,
+                          height: 200,
+                          alignment: Alignment.center,
+                          child: Image.asset("assets/img/cat2.png",)
+                        ),
                         // const SizedBox(height: 10),
                         const Text(
                           "Nhập tài khoản và mật khẩu của bạn",

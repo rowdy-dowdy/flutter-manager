@@ -33,6 +33,7 @@ class MyApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSwatch().copyWith(
           primary: primary2,
         ),
+        fontFamily: 'Arial',
         primaryColor: primary,
         indicatorColor: primary2,
         primaryColorLight: primary,
@@ -71,7 +72,12 @@ class MyApp extends ConsumerWidget {
         ),
         progressIndicatorTheme: const ProgressIndicatorThemeData(
           color: primary2
-        )
+        ),
+        // navigationBarTheme: NavigationBarThemeData(
+        //   labelTextStyle: MaterialStateProperty.all(
+        //     TextStyle(fontFamily: 'Arial', fontSize: 11)
+        //   )
+        // )
       ),
       // darkTheme: ThemeData.dark(),
       // themeMode: ThemeMode.dark,

@@ -9,7 +9,7 @@ import 'package:manager/models/RoomModel.dart';
 import 'package:manager/repositories/RoomRepository.dart';
 import 'package:uuid/uuid.dart';
 
-class RoomData extends Equatable {
+class RoomData {
   final RoomModel? room;
   final bool loading;
   final RoomModel? roomBackup;
@@ -25,7 +25,7 @@ class RoomData extends Equatable {
       roomBackup = null,
       loading = false;
 
-  RoomData copyWithLoading (bool loading) {
+  RoomData copyWithLoading(bool loading) {
     return RoomData(room: room, loading: loading, roomBackup: roomBackup);
   }
 
@@ -91,13 +91,16 @@ class RoomData extends Equatable {
   }
 
   RoomData refresh() {
-    // print(room?.toJson());
-    // print(roomBackup?.toJson());
-    return RoomData(room: roomBackup, loading: loading, roomBackup: roomBackup);
+    if (room != null) {
+      return RoomData(room: RoomModel.fromMap(roomBackup!.toMap()), loading: loading, roomBackup: roomBackup);
+    } 
+    else {
+      return RoomData(room: room, loading: loading, roomBackup: roomBackup);
+    }
   }
 
-  @override
-  List<Object?> get props => [room, loading];
+  // @override
+  // List<Object?> get props => [room, loading, roomBackup];
 }
 
 class RoomNotifier extends StateNotifier<RoomData> {
@@ -110,7 +113,14 @@ class RoomNotifier extends StateNotifier<RoomData> {
   Future<void> load(String id) async {
     state = RoomData(room: null, loading: true, roomBackup: null);
     var data = await ref.read(roomRepositoryProvider).getDetailRoom(id);
-    state = RoomData(room: data, loading: false, roomBackup: data != null ? RoomModel.fromMap(data.toMap()) : null);
+    if (data == null) {
+      state = RoomData(room: null, loading: false, roomBackup: null);
+    }
+    else {
+      // RoomModel.fromMap(data.toMap());
+      state = RoomData(room: RoomModel.fromMap(data.toMap()), loading: false, roomBackup: RoomModel.fromMap(data.toMap()));
+    }
+    
   }
 
   Future<void> refresh() async {
@@ -123,6 +133,8 @@ class RoomNotifier extends StateNotifier<RoomData> {
 
   Future<void> createRoomItem(MenuModel menu) async {
     state = state.createRoomItem(menu);
+    // print(state.room?.toJson());
+    // print(state.roomBackup?.toJson());
   }
 
   Future<void> deleteRoomItem(String itemId) async {
