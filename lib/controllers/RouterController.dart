@@ -9,6 +9,7 @@ import 'package:manager/pages/home/HomePage.dart';
 import 'package:manager/pages/LoadingPage.dart';
 import 'package:manager/pages/LoginPage.dart';
 import 'package:manager/pages/home/room/RoomDetail.dart';
+import 'package:manager/pages/home/room/RoomDetailEdit.dart';
 
 class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
@@ -66,6 +67,13 @@ class RouterNotifier extends ChangeNotifier {
               name: 'room-detail',
               path: 'room/:id',
               builder: (context, state) => RoomDetail(id: state.params['id']!),
+              routes: [
+                GoRoute(
+                  name: 'room-detail-edit',
+                  path: 'edit',
+                  builder: (context, state) => RoomDetailEdit(id: state.params['id']!),
+                ),
+              ]
             ),
           ]
         ),

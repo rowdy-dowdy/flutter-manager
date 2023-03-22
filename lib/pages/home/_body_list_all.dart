@@ -90,14 +90,14 @@ class BodyListAll extends ConsumerWidget {
                         var room = rooms[item];
 
                         return InkWell(
-                          onTap: () => context.go('/room/${room.id}'),
+                          onTap: () => room.status == RoomStatus.empty ? context.go('/room/${room.id}/edit') : context.go('/room/${room.id}'),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                             constraints: const BoxConstraints(minHeight: 100),
                             decoration: BoxDecoration(
-                              color: primary2.withOpacity(.2),
+                              color: room.status != RoomStatus.empty ? primary2.withOpacity(.2) : Colors.white,
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: primary2)
+                              border: Border.all(color: room.status != RoomStatus.empty ? primary2 : Colors.grey[300]!)
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,52 +106,55 @@ class BodyListAll extends ConsumerWidget {
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16
                                 ),),
-                                const SizedBox(height: 10,),
-                                Wrap(
-                                  spacing: 5,
-                                  runSpacing: 5,
-                                  children: [
-                                    Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: const BoxDecoration(shape: BoxShape.circle, color: yellow2),
-                                      // alignment: Alignment.center,
-                                      child: const Icon(CupertinoIcons.money_dollar_circle_fill, size: 18, color: Colors.white,),
-                                    ),
-                                    Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: const BoxDecoration(shape: BoxShape.circle, color: yellow2),
-                                      // alignment: Alignment.center,
-                                      child: const Icon(Icons.fastfood_outlined, size: 18, color: Colors.white,),
-                                    ),
-                                    Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: const BoxDecoration(shape: BoxShape.circle, color: blue2),
-                                      // alignment: Alignment.center,
-                                      child: const Icon(CupertinoIcons.hare_fill, size: 18, color: Colors.white,),
-                                    ),
-                                    Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: const BoxDecoration(shape: BoxShape.circle, color: blue2),
-                                      // alignment: Alignment.center,
-                                      child: const Icon(CupertinoIcons.calendar, size: 18, color: Colors.white,),
-                                    )
-                                  ],
-                                ),
-                                const SizedBox(height: 10,), 
-                                Text("1 Giờ 40 phút", style: TextStyle(
-                                  color: Colors.grey[800],
-                                  fontSize: 13
-                                ),),
-                                const SizedBox(height: 10,),
-                                Text("888.000 ₫", style: TextStyle(
-                                  color: blue2,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500
-                                ),)
+
+                                if (room.status != RoomStatus.empty) ...[
+                                  const SizedBox(height: 10,),
+                                  Wrap(
+                                    spacing: 5,
+                                    runSpacing: 5,
+                                    children: [
+                                      Container(
+                                        width: 30,
+                                        height: 30,
+                                        decoration: const BoxDecoration(shape: BoxShape.circle, color: yellow2),
+                                        // alignment: Alignment.center,
+                                        child: const Icon(CupertinoIcons.money_dollar_circle_fill, size: 18, color: Colors.white,),
+                                      ),
+                                      Container(
+                                        width: 30,
+                                        height: 30,
+                                        decoration: const BoxDecoration(shape: BoxShape.circle, color: yellow2),
+                                        // alignment: Alignment.center,
+                                        child: const Icon(Icons.fastfood_outlined, size: 18, color: Colors.white,),
+                                      ),
+                                      Container(
+                                        width: 30,
+                                        height: 30,
+                                        decoration: const BoxDecoration(shape: BoxShape.circle, color: blue2),
+                                        // alignment: Alignment.center,
+                                        child: const Icon(CupertinoIcons.hare_fill, size: 18, color: Colors.white,),
+                                      ),
+                                      Container(
+                                        width: 30,
+                                        height: 30,
+                                        decoration: const BoxDecoration(shape: BoxShape.circle, color: blue2),
+                                        // alignment: Alignment.center,
+                                        child: const Icon(CupertinoIcons.calendar, size: 18, color: Colors.white,),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10,), 
+                                  Text("1 Giờ 40 phút", style: TextStyle(
+                                    color: Colors.grey[800],
+                                    fontSize: 13
+                                  ),),
+                                  const SizedBox(height: 10,),
+                                  Text("888.000 ₫", style: TextStyle(
+                                    color: blue2,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500
+                                  ),)
+                                ],
                               ],
                             ),
                           ),

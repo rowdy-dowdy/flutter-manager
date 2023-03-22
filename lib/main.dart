@@ -26,7 +26,11 @@ class MyApp extends ConsumerWidget {
         appBarTheme: const AppBarTheme(
           color: Colors.transparent,
           elevation: 0,
-          foregroundColor: primary
+          foregroundColor: primary,
+          titleTextStyle: TextStyle(fontSize: 18, color: primary, fontWeight: FontWeight.w600),
+          iconTheme: IconThemeData(
+            size: 20
+          )
         ),
         // scaffoldBackgroundColor: primary4,
         // primarySwatch: primary,

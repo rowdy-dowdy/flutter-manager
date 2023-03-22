@@ -2,14 +2,14 @@
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:manager/models/MenuModel.dart';
+import 'package:uuid/uuid.dart';
 
+import 'package:manager/models/MenuModel.dart';
 import 'package:manager/models/RoomItemModel.dart';
 import 'package:manager/models/RoomModel.dart';
 import 'package:manager/repositories/RoomRepository.dart';
-import 'package:uuid/uuid.dart';
 
-class RoomData {
+class RoomData extends Equatable {
   final RoomModel? room;
   final bool loading;
   final RoomModel? roomBackup;
@@ -99,8 +99,8 @@ class RoomData {
     }
   }
 
-  // @override
-  // List<Object?> get props => [room, loading, roomBackup];
+  @override
+  List<Object?> get props => [room, loading, roomBackup];
 }
 
 class RoomNotifier extends StateNotifier<RoomData> {

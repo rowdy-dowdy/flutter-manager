@@ -2,12 +2,20 @@ import 'dart:convert';
 
 import 'package:manager/models/RoomItemModel.dart';
 
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+enum RoomStatus {
+  empty,
+  booking,
+  using;
+
+  String toJson() => name;
+  static RoomStatus fromJson(String json) => values.byName(json);
+}
+
 class RoomModel {
   final String id;
   final String title;
   final String floor;
-  final bool status;
+  final RoomStatus status;
   final DateTime created;
   final DateTime updated;
   List<RoomItemModel> items;
@@ -27,9 +35,9 @@ class RoomModel {
       'id': id,
       'title': title,
       'floor': floor,
-      'status': status,
       'created': created.toString(),
       'updated': updated.toString(),
+      'status': status.toJson(),
       'expand': {
         'items': items.map((x) => x.toMap()).toList(),
       }
@@ -41,7 +49,7 @@ class RoomModel {
       id: map['id'] as String,
       title: map['title'] as String,
       floor: map['floor'] as String,
-      status: map['status'] as bool,
+      status: RoomStatus.fromJson(map['status'] as String),
       created: DateTime.parse(map['created'] as String),
       updated: DateTime.parse(map['updated'] as String),
       items: map['expand']?['items'] != null ? List<RoomItemModel>.from((map['expand']['items'] as List<dynamic>).map<RoomItemModel>((x) => RoomItemModel.fromMap(x as Map<String,dynamic>),),) : [],
