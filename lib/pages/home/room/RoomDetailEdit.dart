@@ -1,11 +1,11 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:ui';
+import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manager/components/room/body_detail_edit_loading.dart';
 import 'package:manager/controllers/RoomController.dart';
 import 'package:manager/models/MenuCategory.dart';
 import 'package:manager/models/MenuModel.dart';
@@ -13,7 +13,6 @@ import 'package:manager/models/RoomModel.dart';
 import 'package:manager/repositories/MenuRepository.dart';
 import 'package:manager/utils/color.dart';
 import 'package:manager/utils/utils.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:collection/collection.dart';
 
 final listMenuCategoryProvider = FutureProvider((ref) async {
@@ -42,26 +41,40 @@ class RoomDetailEdit extends ConsumerWidget {
 
     final menuCategories = ref.watch(listMenuCategoryProvider);
     final menus = ref.watch(filterProvider);
-    final room = ref.watch(roomProvider(id)).room;
+    final state = ref.watch(roomProvider(id));
 
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
         leading: IconButton(
-          onPressed: () {
-            ref.read(roomProvider(id).notifier).refresh();
-            if (room?.status == RoomStatus.empty) {
-              context.go('/');
+          onPressed: () async {
+            var isOut = false;
+            if (state.room?.toJson().toString() == state.roomBackup?.toJson().toString()) {
+              ref.read(roomProvider(id).notifier).refresh();
             }
             else {
-              context.go('/room/$id');
+              isOut = await dialogEscape(context, "Bạn có muốn thoát", 
+              "Bạn đã cập nhập món nhưng chưa thêm vào hóa đơn. Có chắc chắn muốn thoát") ?? false;
+
+              if (isOut) {
+                ref.read(roomProvider(id).notifier).refresh();
+              }
+              else {
+                return;
+              }
+            }
+
+            if (state.room?.status == RoomStatus.empty) {
+              if (context.mounted) context.go('/');
+            }
+            else {
+              if (context.mounted) context.go('/room/$id');
             }
           },
           icon: const Icon(CupertinoIcons.xmark),
         ),
         title: Consumer(
           builder: (context, ref, child) {
-            final state = ref.watch(roomProvider(id));
             if (state.loading) {
               return const Text("loading...");
             }
@@ -131,7 +144,7 @@ class RoomDetailEdit extends ConsumerWidget {
                       itemCount: menus.length,
                       itemBuilder: (context, item) {
                         var menu = menus[item];
-                        final roomItem = room?.items.singleWhereOrNull((element) => element.menu.id == menu.id);
+                        final roomItem = state.room?.items.singleWhereOrNull((element) => element.menu.id == menu.id);
 
                         return Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -201,8 +214,8 @@ class RoomDetailEdit extends ConsumerWidget {
                                                   value: 'delete',
                                                   child: const Text("Xóa lựa chọn", style: TextStyle(
                                                     color: Colors.red,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 12
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14
                                                   ),),
                                                 ),
                                               ]
@@ -228,6 +241,7 @@ class RoomDetailEdit extends ConsumerWidget {
                                         Expanded(
                                           child: Text(formatCurrency(menu.price), style: const TextStyle(fontSize: 14),),
                                         ),
+                                        Container(height: 24,),
                                         if (roomItem != null) ...[
                                           const SizedBox(width: 5,),
                                           InkWell(
@@ -275,7 +289,7 @@ class RoomDetailEdit extends ConsumerWidget {
               );
             }, 
             error: (_, __) => const Center(child: Text("Không thể tải dữ liệu")), 
-            loading: () => const BodyListLoading()
+            loading: () => const BodyDetailEditLoading()
           ),
         ),
       ),
@@ -320,216 +334,69 @@ class RoomDetailEdit extends ConsumerWidget {
               ),
               const SizedBox(width: 10,),
               Flexible(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: yellow2,
-                    borderRadius: BorderRadius.circular(3)
+                child: InkWell(
+                  onTap: () async {
+                    late Timer _timer;
+                    bool isSuccess = (state.room?.items ?? []).isNotEmpty 
+                      ? await ref.read(roomProvider(id).notifier).updateItemInRoom()
+                      : await ref.read(roomProvider(id).notifier).booking();
+
+                    if (isSuccess) {
+                      if (context.mounted) {
+                        await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            _timer = Timer(const Duration(seconds: 2), () {
+                              Navigator.of(context).pop();
+                            });
+                            return const AlertWidget(type: AlertEnum.success,);
+                          }
+                        );
+                      }
+                    }
+                    else {
+                      if (context.mounted) {
+                        await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            _timer = Timer(const Duration(seconds: 2), () {
+                              Navigator.of(context).pop();
+                            });
+                            return const AlertWidget(type: AlertEnum.error,);
+                          }
+                        );
+                      }
+                    }
+
+                    if (_timer.isActive) {
+                      _timer.cancel();
+                    }
+
+                    if (isSuccess) {
+                      await Future.delayed(const Duration(milliseconds: 500));
+                      if (context.mounted) context.go('/room/$id');
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    // height: 60,
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: blue2,
+                      borderRadius: BorderRadius.circular(3)
+                    ),
+                    alignment: Alignment.center,
+                    child: Text((state.room?.items ?? []).isNotEmpty ? "Thêm vào đơn" : "Đặt bàn", style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600
+                    ),textAlign: TextAlign.center,),
                   ),
-                  alignment: Alignment.center,
-                  child: const Text("Hẹn trước", style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600
-                  ),textAlign: TextAlign.center,),
-                ),
-              ),
-              const SizedBox(width: 10,),
-              Flexible(
-                child: Container(
-                  width: double.infinity,
-                  // height: 60,
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: blue2,
-                    borderRadius: BorderRadius.circular(3)
-                  ),
-                  alignment: Alignment.center,
-                  child: Text((room?.items ?? []).isNotEmpty ? "Thêm vào đơn" : "Đặt bàn", style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600
-                  ),textAlign: TextAlign.center,),
                 ),
               )
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class BodyListLoading extends ConsumerWidget {
-  const BodyListLoading({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[200]!,
-      child: Column(
-        children: [
-          const SizedBox(height: 10,),
-          SizedBox(
-            height: 34,
-            child: ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemCount: 5,
-              // physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (BuildContext context, int i) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
-                  margin: EdgeInsets.only(
-                    left: i == 0 ? 15 : 5,
-                    right: i == 4 ? 15 : 5
-                  ),
-                  height: double.infinity,
-                  decoration: BoxDecoration(
-                    color: primary,
-                    borderRadius: BorderRadius.circular(20)
-                  ),
-                  alignment: Alignment.center,
-                  child: Text("Tầng ${i+1}", style: TextStyle(color: Colors.white),),
-                );
-              }
-            ),
-          ),
-          const SizedBox(height: 15,),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 6,
-              itemBuilder: (context, item) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Colors.grey[300]!))
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: Colors.red
-                        ),
-                      ),
-                      const SizedBox(width: 10,),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(child: Container(width: 150, height: 15, decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.red
-                                ),)),
-                                const SizedBox(width: 5,),
-                                const Icon(Icons.more_vert),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Icon(Icons.circle, color: Colors.grey, size: 5,),
-                                const SizedBox(width: 5,),
-                                Container(width: 50, height: 15, decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.red
-                                ),),
-                                const SizedBox(width: 5,),
-                                const Icon(Icons.circle, color: Colors.grey, size: 5,),
-                                const SizedBox(width: 5,),
-                                Container(width: 50, height: 15, decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.red
-                                ),),
-                              ],
-                            ),
-                            const SizedBox(height: 5,),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Container(width: 50, height: 15, decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Colors.red
-                                  ),),
-                                ),
-                                const SizedBox(width: 5,),
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(shape: BoxShape.circle, color: blue2),
-                                  child: const Icon(Icons.remove, size: 18, color: Colors.white,),
-                                ),
-                                const SizedBox(width: 15,),
-                                Container(width: 10, height: 15, decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.red
-                                )),
-                                const SizedBox(width: 15,),
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(shape: BoxShape.circle, color: blue2),
-                                  child: const Icon(Icons.add, size: 18, color: Colors.white,),
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 15,),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _dialogBuilder(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Basic dialog title'),
-          content: const Text('A dialog is a type of modal window that\n'
-              'appears in front of app content to\n'
-              'provide critical information, or prompt\n'
-              'for a decision to be made.'),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Disable'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Enable'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }

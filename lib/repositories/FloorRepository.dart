@@ -36,10 +36,10 @@ class FloorRepository {
         return floors;
       } 
       else {
-        throw Exception('BarException');
+        return [];
       }
     } catch(e) {
-      throw Exception('BarException'); 
+      return [];
     }
   }
 }

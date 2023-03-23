@@ -2,18 +2,21 @@
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:manager/components/room/body_detail_loading.dart';
 import 'package:manager/controllers/RoomController.dart';
 import 'package:manager/models/MenuCategory.dart';
 import 'package:manager/models/MenuModel.dart';
 import 'package:manager/models/RoomModel.dart';
 import 'package:manager/repositories/MenuRepository.dart';
 import 'package:manager/utils/color.dart';
+import 'package:manager/utils/utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:collection/collection.dart';
 
@@ -37,11 +40,6 @@ final filterProvider = Provider((ref) {
 class RoomDetail extends ConsumerWidget {
   final String id; 
   const RoomDetail({required this.id, super.key});
-
-  String formatCurrency(double price) {
-    final currencyFormatter = NumberFormat.currency(locale: 'vi');
-    return currencyFormatter.format(price);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -81,14 +79,60 @@ class RoomDetail extends ConsumerWidget {
             }
           },
         ),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert))],
+        actions: [
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2(
+                customButton: const Icon(Icons.more_vert),
+                items: [
+                  DropdownMenuItem(
+                    onTap: () {},
+                    value: "delete",
+                    child: Row(
+                      children: const [
+                        Icon(CupertinoIcons.delete, size: 20,),
+                        SizedBox(width: 5,),
+                        Text("Hủy đơn hàng", style: TextStyle(
+                          // color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14
+                        ),),
+                      ],
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  
+                },
+                dropdownStyleData: DropdownStyleData(
+                  width: 160,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    // color: Colors.redAccent,
+                  ),
+                  elevation: 8,
+                  offset: const Offset(0, 8),
+                ),
+                menuItemStyleData: MenuItemStyleData(
+                  customHeights: [30],
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 5,)
+        ],
       ),
       body: SingleChildScrollView(
         // physics: const AlwaysScrollableScrollPhysics(),
         child: Consumer(
           builder: (context, ref, child) {
+            // return const BodyDetailLoading();
             if (state.loading) {
-              return const BodyListLoading();
+              return const BodyDetailLoading();
             }
             else if (state.room == null) {
               return const Center(child: Text("Không thể tải dữ liệu"));
@@ -187,7 +231,7 @@ class RoomDetail extends ConsumerWidget {
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
                                         Expanded(
-                                          child: Text(item.menu.formatCurrency(), style: const TextStyle(
+                                          child: Text(formatCurrency(item.menu.price), style: const TextStyle(
                                             // fontWeight: FontWeight.w600,
                                           )),
                                         ),
@@ -282,14 +326,14 @@ class RoomDetail extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(5)
                           ),
                           alignment: Alignment.center,
-                          child: Text("10", style: const TextStyle(
+                          child: Text(state.room?.countItems().toString() ?? "0", style: const TextStyle(
                             color: blue2, fontWeight: FontWeight.w500
                           ),),
                         )
                       ],
                     ),
                     const SizedBox(height: 5,),
-                    Text("30, 000", style: TextStyle(
+                    Text(formatCurrency(state.room?.getAllPrice() ?? 0), style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Colors.grey[800],
                       fontSize: 18
@@ -349,146 +393,6 @@ class RoomDetail extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.go('/room/$id/edit'),
         child: const Icon(CupertinoIcons.add),
-      ),
-    );
-  }
-}
-
-class BodyListLoading extends ConsumerWidget {
-  const BodyListLoading({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[200]!,
-      child: Column(
-        children: [
-          const SizedBox(height: 10,),
-          SizedBox(
-            height: 34,
-            child: ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemCount: 5,
-              // physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (BuildContext context, int i) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
-                  margin: EdgeInsets.only(
-                    left: i == 0 ? 15 : 5,
-                    right: i == 4 ? 15 : 5
-                  ),
-                  height: double.infinity,
-                  decoration: BoxDecoration(
-                    color: primary,
-                    borderRadius: BorderRadius.circular(20)
-                  ),
-                  alignment: Alignment.center,
-                  child: Text("Tầng ${i+1}", style: TextStyle(color: Colors.white),),
-                );
-              }
-            ),
-          ),
-          const SizedBox(height: 15,),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 6,
-              itemBuilder: (context, item) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Colors.grey[300]!))
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: Colors.red
-                        ),
-                      ),
-                      const SizedBox(width: 10,),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(child: Container(width: 150, height: 15, decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.red
-                                ),)),
-                                const SizedBox(width: 5,),
-                                const Icon(Icons.more_vert),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Icon(Icons.circle, color: Colors.grey, size: 5,),
-                                const SizedBox(width: 5,),
-                                Container(width: 50, height: 15, decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.red
-                                ),),
-                                const SizedBox(width: 5,),
-                                const Icon(Icons.circle, color: Colors.grey, size: 5,),
-                                const SizedBox(width: 5,),
-                                Container(width: 50, height: 15, decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.red
-                                ),),
-                              ],
-                            ),
-                            const SizedBox(height: 5,),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Container(width: 50, height: 15, decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Colors.red
-                                  ),),
-                                ),
-                                const SizedBox(width: 5,),
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(shape: BoxShape.circle, color: blue2),
-                                  child: const Icon(Icons.remove, size: 18, color: Colors.white,),
-                                ),
-                                const SizedBox(width: 15,),
-                                Container(width: 10, height: 15, decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.red
-                                )),
-                                const SizedBox(width: 15,),
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(shape: BoxShape.circle, color: blue2),
-                                  child: const Icon(Icons.add, size: 18, color: Colors.white,),
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 15,),
-        ],
       ),
     );
   }

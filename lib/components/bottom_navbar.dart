@@ -46,23 +46,26 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>{
     final location = ref.watch(routerProvider).location;
     final currentPageIndex = menu.indexWhere((v) => v['path'] == location);
 
-    return NavigationBar(
-      destinations: menu.map((v) => 
-        NavigationDestination(
-          icon: Icon(v['icon'], color: location == v['path'] ? primary : Colors.grey[800],), 
-          label: v['label']
-        )
-      ).toList(),
-      selectedIndex: currentPageIndex < 0 ? 0 : currentPageIndex,
-      onDestinationSelected: (int index) {
-        // setState(() {
-        //   currentPageIndex = index;
-        // });
-        context.go(menu[index]['path']);
-      },
-      animationDuration: const Duration(seconds: 1),
-      height: 70,
-      backgroundColor: Colors.white,
+    return Container(
+      decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey[300]!))),
+      child: NavigationBar(
+        destinations: menu.map((v) => 
+          NavigationDestination(
+            icon: Icon(v['icon'], color: location == v['path'] ? primary : Colors.grey[800],), 
+            label: v['label']
+          )
+        ).toList(),
+        selectedIndex: currentPageIndex < 0 ? 0 : currentPageIndex,
+        onDestinationSelected: (int index) {
+          // setState(() {
+          //   currentPageIndex = index;
+          // });
+          context.go(menu[index]['path']);
+        },
+        // animationDuration: const Duration(seconds: 1),
+        height: 70,
+        backgroundColor: Colors.white,
+      ),
     );
   }
 }

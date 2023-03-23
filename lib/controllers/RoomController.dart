@@ -99,6 +99,20 @@ class RoomData extends Equatable {
     }
   }
 
+  RoomData booking() {
+    if (room != null) {
+      room?.status = RoomStatus.booking;
+      room?.items = [];
+      roomBackup?.status = RoomStatus.booking;
+      roomBackup?.items = [];
+
+      return RoomData(room: room, loading: loading, roomBackup: roomBackup);
+    } 
+    else {
+      return RoomData(room: room, loading: loading, roomBackup: roomBackup);
+    }
+  }
+
   @override
   List<Object?> get props => [room, loading, roomBackup];
 }
@@ -139,6 +153,37 @@ class RoomNotifier extends StateNotifier<RoomData> {
 
   Future<void> deleteRoomItem(String itemId) async {
     state = state.deleteRoomItem(itemId);
+  }
+
+  Future<bool> booking() async {
+    bool isSuccess = await ref.read(roomRepositoryProvider).booking(id, state.roomBackup?.items ?? []);
+    if (isSuccess) {
+      state = state.booking();
+    }
+    return isSuccess;
+  }
+
+  Future<bool> updateItemInRoom() async {
+    final data = await ref.read(roomRepositoryProvider)
+      .updateItemInRoom(state.room!.id, state.roomBackup!.items, state.room!.items);
+
+    if (data == null) {
+      state = RoomData(room: null, loading: false, roomBackup: null);
+    }
+    else {
+      // RoomModel.fromMap(data.toMap());
+      state = RoomData(room: RoomModel.fromMap(data.toMap()), loading: false, roomBackup: RoomModel.fromMap(data.toMap()));
+    }
+
+    return data != null;
+  }
+
+  Future<bool> cancelOrder() async {
+    bool isSuccess = false;
+    if (isSuccess) {
+      state = state.booking();
+    }
+    return isSuccess;
   }
 }
 

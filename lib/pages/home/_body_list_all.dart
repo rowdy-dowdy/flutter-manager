@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manager/controllers/RoomController.dart';
 import 'package:manager/models/Floor.dart';
 import 'package:manager/models/RoomModel.dart';
 import 'package:manager/repositories/FloorRepository.dart';
 import 'package:manager/utils/color.dart';
+import 'package:manager/utils/utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -35,7 +37,7 @@ class BodyListAll extends ConsumerWidget {
     final rooms = ref.watch(filterProvider);
 
     return Container(
-      color: Colors.grey[100],
+      color: Colors.grey[200],
       // padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
       child: RefreshIndicator(
         onRefresh: () => ref.refresh(listFloorProvider.future),
@@ -87,17 +89,31 @@ class BodyListAll extends ConsumerWidget {
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
                       itemBuilder: (context, item) {
-                        var room = rooms[item];
+                        var room = ref.watch(roomProvider(rooms[item].id)).room;
 
-                        return InkWell(
+                        if (room == null) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                            constraints: const BoxConstraints(minHeight: 100),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.grey[300]!)
+                            )
+                          );
+                        }
+                        else {
+                          return InkWell(
                           onTap: () => room.status == RoomStatus.empty ? context.go('/room/${room.id}/edit') : context.go('/room/${room.id}'),
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                             constraints: const BoxConstraints(minHeight: 100),
                             decoration: BoxDecoration(
-                              color: room.status != RoomStatus.empty ? primary2.withOpacity(.2) : Colors.white,
+                              color: room.status == RoomStatus.using ? primary2.withOpacity(.2) 
+                                : room.status == RoomStatus.booking ? yellow2.withOpacity(.2) : Colors.white,
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: room.status != RoomStatus.empty ? primary2 : Colors.grey[300]!)
+                              border: Border.all(color: room.status == RoomStatus.using ? primary2 
+                                : room.status == RoomStatus.booking ? yellow2 : Colors.grey[300]!)
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,7 +123,7 @@ class BodyListAll extends ConsumerWidget {
                                   fontSize: 16
                                 ),),
 
-                                if (room.status != RoomStatus.empty) ...[
+                                if (room.status == RoomStatus.using) ...[
                                   const SizedBox(height: 10,),
                                   Wrap(
                                     spacing: 5,
@@ -144,21 +160,33 @@ class BodyListAll extends ConsumerWidget {
                                     ],
                                   ),
                                   const SizedBox(height: 10,), 
-                                  Text("1 Giờ 40 phút", style: TextStyle(
+                                  Text(room.formatTime(), style: TextStyle(
                                     color: Colors.grey[800],
                                     fontSize: 13
                                   ),),
                                   const SizedBox(height: 10,),
-                                  Text("888.000 ₫", style: TextStyle(
+                                  Text(formatCurrency(room.getAllPrice()), style: const TextStyle(
                                     color: blue2,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500
                                   ),)
                                 ],
+
+                                if (room.status == RoomStatus.booking) ...[
+                                  const SizedBox(height: 10,),
+                                  Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: const BoxDecoration(shape: BoxShape.circle, color: blue2),
+                                    // alignment: Alignment.center,
+                                    child: const Icon(CupertinoIcons.calendar, size: 18, color: Colors.white,),
+                                  )
+                                ]
                               ],
                             ),
                           ),
                         );
+                        }
                       },
                     ),
                   ),
